@@ -6,7 +6,11 @@ import webcolors
 from urllib2 import urlopen
 from PIL import Image as Im
 from PIL import ImageChops, ImageDraw
-from colormath.color_objects import RGBColor
+from colormath.color_diff import delta_e_cmc
+from colormath.color_objects import LabColor, sRGBColor
+from colormath.color_conversions import convert_color
+
+
 import cStringIO
 import json
 import random
@@ -41,7 +45,7 @@ def prepare_output(colors, format):
             if convert3To21[name] not in output.keys():
                 output[convert3To21[name]] = [{name : color}]
             else:
-                output[convert3To21[name]].append({name : color})
+                output[convert3To21[name]]prepare_output.append({name : color})
         return output
     elif format == 'fullest':
         output = {}
@@ -87,8 +91,9 @@ def get_color_name(requested_color):
     return closest_name
 
 def distance(c1, c2):
-    ''' Calculate the visual distance between the two colors. '''
-    return RGBColor(*c1).delta_e(RGBColor(*c2), method='cmc')
+	c1lab = convert_color(sRGBColor(c1[0], c1[1], c1[2], True), LabColor)
+	c2lab = convert_color(sRGBColor(c2[0], c2[1], c2[2], True), LabColor)
+	return delta_e_cmc(c1lab, c2lab)
 
 def rgb_to_hex(color):
     ''' Convert from RGB to Hex. '''
@@ -337,3 +342,8 @@ def palette(**kwargs):
     else:
         print "Unable to get image. Exiting."
         sys.exit(0)
+
+#p1 = palette(n=10, path="IMG_0144.JPG", format="fullest")
+
+#print(p1)
+print palette(path="IMG_0144.JPG", n=5, mode="kmeans")
